@@ -80,12 +80,12 @@ def move(p, u):
                 yNew = (y - u[1]) % len(p)
                 pExactPos = p[yNew][xNew]
 
-                xNewOvershoot = (xNew - u[0] if u[0] else 0) % len(p[y])#only one step at a time possible
-                yNewOvershoot = (yNew - u[1] if u[1] else 0) % len(p)
+                xNewOvershoot = (x - u[0] - 1 if u[0] else 0) % len(p[y])#only one step at a time possible
+                yNewOvershoot = (y - u[1] - 1 if u[1] else 0) % len(p)
                 pOvershootPos = p[yNewOvershoot][xNewOvershoot]
 
-                xNewUndershoot = (xNew + u[0] if u[0] else 0) % len(p[y])
-                yNewUndershoot = (yNew + u[1] if u[1] else 0) % len(p)
+                xNewUndershoot = (x - u[0] + u[0] if u[0] else 0) % len(p[y])
+                yNewUndershoot = (y - u[1] + u[1] if u[1] else 0) % len(p)
                 pUndershootPos = p[yNewUndershoot][xNewUndershoot]
 
                 s = pExact * pExactPos + pOvershoot * pOvershootPos + pUndershoot * pUndershootPos
