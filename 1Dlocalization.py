@@ -76,15 +76,15 @@ def move(p, u):
         for y in range(len(p)):
             q.append([])
             for x in range(len(p[y])):
-                xNew = (x - u[0]) % len(p[y])
+                xNew = (x + u[0]) % len(p[y])
                 yNew = (y - u[1]) % len(p)
                 pExactPos = p[yNew][xNew]
 
-                xNewOvershoot = (x - u[0] - 1 if u[0] else 0) % len(p[y])#only one step at a time possible
-                yNewOvershoot = (y - u[1] - 1 if u[1] else 0) % len(p)
+                xNewOvershoot = (x + u[0] + u[0] if u[0] else 0) % len(p[y])#only one step at a time possible
+                yNewOvershoot = (y - u[1] - u[1] if u[1] else 0) % len(p)
                 pOvershootPos = p[yNewOvershoot][xNewOvershoot]
 
-                xNewUndershoot = (x - u[0] + u[0] if u[0] else 0) % len(p[y])
+                xNewUndershoot = (x + u[0] - u[0] if u[0] else 0) % len(p[y])
                 yNewUndershoot = (y - u[1] + u[1] if u[1] else 0) % len(p)
                 pUndershootPos = p[yNewUndershoot][xNewUndershoot]
 
@@ -131,12 +131,12 @@ if __name__ == "__main__":
     elif DIMENSIONS == 1:
         p = [0.2, 0.2, 0.2, 0.2, 0.2]
 
-    measurements = ['red', 'green', 'red', 'green']
+    measurements = ['red', 'red', 'red', 'red', 'red']
 
     if DIMENSIONS == 1:
         motions = [1, 1]
     elif DIMENSIONS == 2:
-        motions = [[1, 0], [0, -1], [0, -1], [0, -1]]#only one step at a time possible
+        motions = [[0, -1], [0, -1], [0, -1], [0, -1], [0, -1]]#only one step at a time possible
 
     print_loc(world, np.around(p, 3))
     print("---------------------")
