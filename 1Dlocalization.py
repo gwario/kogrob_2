@@ -6,13 +6,9 @@ import math as m
 DIMENSIONS = 2
 
 if DIMENSIONS == 2:
-    world = [['green', 'red', 'red', 'green', 'green'],
-             ['green', 'red', 'red', 'green', 'green'],
-             ['green', 'red', 'red', 'red', 'green'],
-             ['red', 'green', 'red', 'green', 'green'],
-             ['green', 'red', 'red', 'green', 'red'],
-             ['green', 'green', 'red', 'green', 'green'],
-             ['red', 'red', 'green', 'green', 'green']]
+    world = [['green', 'red', 'red'],
+             ['red', 'green', 'green'],
+             ['green', 'red', 'red']]
 elif DIMENSIONS == 1:
         world = ['green', 'red', 'red', 'green', 'green']
 
@@ -154,12 +150,12 @@ if __name__ == "__main__":
     elif DIMENSIONS == 1:
         p = [0.2, 0.2, 0.2, 0.2, 0.2]
 
-    measurements = ['red', 'red', 'red', 'red', 'red']
+    measurements = ['red', 'red', 'green']
 
     if DIMENSIONS == 1:
         motions = [1, 1]
     elif DIMENSIONS == 2:
-        motions = [[0, -1], [0, -1], [0, -1], [0, -1], [0, -1]]#only one step at a time possible
+        motions = [[0, -1], [0, -1], [-1, 0]]#only one step at a time possible
 
     print_loc(world, np.around(p, 3))
     print("---------------------")
