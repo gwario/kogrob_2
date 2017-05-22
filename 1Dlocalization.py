@@ -6,14 +6,17 @@ import math as m
 DIMENSIONS = 2
 
 if DIMENSIONS == 2:
-    world = [['green', 'green', 'green', 'green', 'green'],
-             ['green', 'green', 'green', 'red', 'red'],
-             ['green', 'green', 'green', 'green', 'green']]
+    world = [['green', 'green', 'green', 'red', 'green'],
+             ['green', 'red',   'red',   'red', 'green'],  #          ^ -> -> |
+             ['red',   'red',   'green', 'red', 'red'],    # red -> | |       v -> -> start/red
+             ['green', 'red',   'green', 'red', 'green'],  #        | |
+             ['green', 'red',   'green', 'red', 'green'],  #        v |
+             ['green', 'green', 'green', 'red', 'green']]
 elif DIMENSIONS == 1:
         world = ['green', 'red', 'red', 'green', 'green']
 
-pHit = 0.6
-pMiss = 0.2
+pHit = 0.6      # 1.0
+pMiss = 0.2     # 0.0
 pExact = 0.8
 pOvershoot = 0.1
 pUndershoot = 0.1
@@ -65,9 +68,9 @@ def move(p, u):
             # undershoot. The overshoot is now defined as one step further in the direction of movement and the
             # undershoot as one step less further in the direction of movement. m.copysign(1, u) ensures, that we
             # over/undershoot in the right direction (sign of u) by only one step.
-            pExactPos = p[(i + u) % len(p)]
-            pOvershootPos = p[(i + u + m.copysign(1, u)) % len(p)]
-            pUndershootPos = p[(i + u - m.copysign(1, u)) % len(p)]
+            pExactPos = p[(i - u) % len(p)]
+            pOvershootPos = p[(i - u + m.copysign(1, u)) % len(p)]
+            pUndershootPos = p[(i - u - m.copysign(1, u)) % len(p)]
             # The original code
             #pExactPos = p[(i - u) % len(p)]
             #pOvershootPos = p[(i - u - 1) % len(p)]
@@ -84,15 +87,15 @@ def move(p, u):
             for x in range(len(p[y])):
                 # To make the movement direction intuitive, [1,0] results in a move to the right and [-1,0] to the left.
                 # [0,1] results in a move up and [0,-1] down.
-                xNew = (x + u[0]) % len(p[y])
-                yNew = (y - u[1]) % len(p)
+                xNew = (x - u[0]) % len(p[y])
+                yNew = (y + u[1]) % len(p)
                 pExactPos = p[yNew][xNew]
 
                 # Prevent diagonal movements due to over-/undershoot. The over/undershoot is defined as one step
                 # further/less further in direction of movement.
                 if u[0] != 0:
-                    xNewOvershoot = (x + u[0] + int(m.copysign(1, u[0]))) % len(p[y])
-                    xNewUndershoot = (x + u[0] - int(m.copysign(1, u[0]))) % len(p[y])
+                    xNewOvershoot = (x - u[0] + int(m.copysign(1, u[0]))) % len(p[y])
+                    xNewUndershoot = (x - u[0] - int(m.copysign(1, u[0]))) % len(p[y])
                 else:
                     xNewOvershoot = x
                     xNewUndershoot = x
@@ -118,7 +121,14 @@ def print_aligned(myArray):
         print(" ".join(["{:<{mx}}".format(ele,mx=mx) for ele in row]))
 
 
-def print_loc(world, p):
+def print_loc(world, sense, move, p):
+    if sense is not None:
+        print("Sense:")
+        print("sensed: "+sense)
+    if move is not None:
+        print("Move:")
+        print("moved: {}".format(move))
+
     if DIMENSIONS == 1:
         world_row = ["world:"]
         world_row.extend(world)
@@ -128,14 +138,15 @@ def print_loc(world, p):
         print_aligned([world_row, p_row])
 
     elif DIMENSIONS == 2:
-        print("world:")
-        print_aligned(world)
-        print("p:")
-        print_aligned(p)
+        print("| world |")
+        print("| p     |")
+        world_with_p = []
+        for i in range(len(world)):
+            world_with_p.append(world[i])
+            world_with_p.append(p[i])
+            world_with_p.append([""] * len(world[i]))
 
-
-def print_mov(move, sense):
-    print_aligned([["sense:", sense], ["move:", move]])
+        print_aligned(world_with_p)
 
 
 def get_uniform_distributed_positions(world):
@@ -150,26 +161,22 @@ if __name__ == "__main__":
     elif DIMENSIONS == 1:
         p = [0.2, 0.2, 0.2, 0.2, 0.2]
 
-    measurements = ['red', 'red', 'green', 'green']
+    measurements = ['red'] * 11
 
     if DIMENSIONS == 1:
         motions = [1, 1]
     elif DIMENSIONS == 2:
-        motions = [[-1, 0], [-1, 0], [-1, 0], [0, -1]]#only one step at a time possible
+        motions = [[1, 0], [0, -1], [0, -1], [0, 1], [0, 1], [0, 1], [1, 0], [1, 0], [0, -1], [1, 0], [1, 0]]
 
-    print_loc(world, np.around(p, 3))
+    print_loc(world, None, None, np.around(p, 3))
     print("---------------------")
 
     for k in range(len(measurements)):
         p = sense(p, measurements[k])
-        print("Sense:")
-        print_mov(motions[k], measurements[k])
-        print_loc(world, np.around(p, 3))
+        print_loc(world, measurements[k], None, np.around(p, 3))
 
         p = move(p, motions[k])
-        print("Move:")
-        print_mov(motions[k], measurements[k])
-        print_loc(world, np.around(p, 3))
+        print_loc(world, None, motions[k], np.around(p, 3))
         print("---------------------")
 
     #print("p", np.around(p, 4))
