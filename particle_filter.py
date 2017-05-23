@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import random
 import math
 import bisect
+import numpy as np
 from draw import Maze
 
 # 0 - empty square
@@ -165,6 +166,30 @@ class Robot(Particle):
 
 # ------------------------------------------------------------------------
 
+
+def rws(particles, pointers):
+    keep = []
+    weights = [p.w for p in particles]
+    sums = np.cumsum(weights)
+    for p in pointers:
+        i = 0
+        while sums[i] < p:
+            i += 1
+
+        keep.append(particles[i])
+
+    return keep
+
+
+def sus(particles):
+    weight_sum = sum([p.w for p in particles])
+    n = len(particles)
+    p = weight_sum/n
+    start = random.uniform(0, p)
+    pointers = [start + i*p for i in range(n)]
+    return rws(particles, pointers)
+
+
 world = Maze(maze_data)
 world.draw()
 
@@ -176,7 +201,22 @@ while True:
     # Read Robot's sensor
     r_d = nao.read_sensor(world)
 
-    # TODO: Update particle weight according to how good every particle matches
+    weight_sum = 0
+    for particle in particles:
+
+        d = particle.read_sensor(world)
+
+        dev = max(abs(d - r_d), 0.00001)
+        w = 1 / dev
+        particle.w = w
+
+        #particle.w = w_gauss(d, r_d)
+        weight_sum += particle.w
+
+    for particle in particles:
+
+        particle.w /= weight_sum
+
 
     # ---------- Show current state ----------
     world.show_particles(particles)
@@ -184,11 +224,13 @@ while True:
     world.show_robot(nao)
 
     # ---------- Shuffle particles ----------
-    new_particles = []
+    new_particles = sus(particles)
 
-    # TODO: Normalise weights
+    for p in new_particles:
+        x, y = p.x, p.y
+        p.x, p.y = add_some_noise(p.x, p.y)
 
-    # TODO: update Samples
+    particles = new_particles
 
     # ---------- Move things ----------
     old_heading = nao.h
