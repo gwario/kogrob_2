@@ -63,18 +63,9 @@ def move(p, u):
     if DIMENSIONS == 1:
         q = []
         for i in range(len(p)):
-            # Since it is counter-intuitive that the robot moves left for a movement of +1 and right for -1, we changed
-            # the formula here. Also the behavior for negative movements is counter-intuitive for overshoot and
-            # undershoot. The overshoot is now defined as one step further in the direction of movement and the
-            # undershoot as one step less further in the direction of movement. m.copysign(1, u) ensures, that we
-            # over/undershoot in the right direction (sign of u) by only one step.
             pExactPos = p[(i - u) % len(p)]
-            pOvershootPos = p[(i - u + m.copysign(1, u)) % len(p)]
-            pUndershootPos = p[(i - u - m.copysign(1, u)) % len(p)]
-            # The original code
-            #pExactPos = p[(i - u) % len(p)]
-            #pOvershootPos = p[(i - u - 1) % len(p)]
-            #pUndershootPos = p[(i - u + 1) % len(p)]
+            pOvershootPos = p[(i - u - 1) % len(p)]
+            pUndershootPos = p[(i - u + 1) % len(p)]
 
             s = pExact * pExactPos + pOvershoot * pOvershootPos + pUndershoot * pUndershootPos
             q.append(s)
@@ -85,8 +76,7 @@ def move(p, u):
         for y in range(len(p)):
             q.append([])
             for x in range(len(p[y])):
-                # To make the movement direction intuitive, [1,0] results in a move to the right and [-1,0] to the left.
-                # [0,1] results in a move up and [0,-1] down.
+                # To make the movement direction intuitive, [0,1] results in a move up and [0,-1] down.
                 xNew = (x - u[0]) % len(p[y])
                 yNew = (y + u[1]) % len(p)
                 pExactPos = p[yNew][xNew]
@@ -161,7 +151,10 @@ if __name__ == "__main__":
     elif DIMENSIONS == 1:
         p = [0.2, 0.2, 0.2, 0.2, 0.2]
 
-    measurements = ['red'] * 11
+    if DIMENSIONS == 1:
+        measurements = ['red'] * 2
+    else:
+        measurements = ['red'] * 11
 
     if DIMENSIONS == 1:
         motions = [1, 1]
