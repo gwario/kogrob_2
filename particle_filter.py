@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 import random
 import math
-import bisect
 import numpy as np
 from draw import Maze
 
@@ -37,6 +36,9 @@ def add_little_noise(*coords):
 
 def add_some_noise(*coords):
     return add_noise(0.1, *coords)
+
+def add_quite_some_noise(*coords):
+    return add_noise(0.5, *coords)
 
 # This is just a gaussian kernel I pulled out of my hat, to transform
 # values near to robbie's measurement => 1, further away => 0
@@ -176,7 +178,9 @@ def rws(particles, pointers):
         while sums[i] < p:
             i += 1
 
-        keep.append(particles[i])
+        p_keep = particles[i]
+        particle = Particle(p_keep.x, p_keep.y, p_keep.h)
+        keep.append(particle)
 
     return keep
 
@@ -206,21 +210,18 @@ while True:
 
         d = particle.read_sensor(world)
 
-        dev = max(abs(d - r_d), 0.00001)
-        w = 1 / dev
+        w = w_gauss(d, r_d)
+        weight_sum += w
         particle.w = w
 
-        #particle.w = w_gauss(d, r_d)
-        weight_sum += particle.w
-
     for particle in particles:
-
         particle.w /= weight_sum
 
 
     # ---------- Show current state ----------
     world.show_particles(particles)
-    # world.show_mean(m_x, m_y, m_confident)
+    m_x, m_y, m_confident = compute_mean_point(particles)
+    world.show_mean(m_x, m_y, m_confident)
     world.show_robot(nao)
 
     # ---------- Shuffle particles ----------
@@ -228,7 +229,7 @@ while True:
 
     for p in new_particles:
         x, y = p.x, p.y
-        p.x, p.y = add_some_noise(p.x, p.y)
+        p.x, p.y, p.h = add_some_noise(p.x, p.y, p.h)
 
     particles = new_particles
 
