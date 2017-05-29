@@ -200,7 +200,7 @@ world.draw()
 # initial distribution assigns each particle an equal probability
 particles = Particle.create_random(PARTICLE_COUNT, world)
 nao = Robot(world)
-
+iterations = 0
 while True:
     # Read Robot's sensor
     r_d = nao.read_sensor(world)
@@ -228,8 +228,9 @@ while True:
     new_particles = sus(particles)
 
     for p in new_particles:
-        x, y = p.x, p.y
         p.x, p.y, p.h = add_some_noise(p.x, p.y, p.h)
+        # p.x, p.y = p.x % world.width, p.y % world.height  # modulus
+        p.x, p.y = min(max(0, p.x), world.width), min(max(0, p.y), world.height)  # min-max
 
     particles = new_particles
 
@@ -242,3 +243,6 @@ while True:
     for p in particles:
         p.h += d_h  # in case robot changed heading, swirl particle heading too
         p.advance_by(nao.speed)
+
+    iterations += 1
+    print(iterations)
