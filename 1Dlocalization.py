@@ -77,22 +77,22 @@ def move(p, u):
             q.append([])
             for x in range(len(p[y])):
                 # To make the movement direction intuitive, [0,1] results in a move up and [0,-1] down.
-                xNew = (x - u[0]) % len(p[y])
-                yNew = (y + u[1]) % len(p)
+                xNew = (x - u[1]) % len(p[y])
+                yNew = (y - u[0]) % len(p)
                 pExactPos = p[yNew][xNew]
 
                 # Prevent diagonal movements due to over-/undershoot. The over/undershoot is defined as one step
                 # further/less further in direction of movement.
-                if u[0] != 0:
-                    xNewOvershoot = (x - u[0] + int(m.copysign(1, u[0]))) % len(p[y])
-                    xNewUndershoot = (x - u[0] - int(m.copysign(1, u[0]))) % len(p[y])
+                if u[1] != 0:
+                    xNewOvershoot = (x - u[1] + int(m.copysign(1, u[1]))) % len(p[y])
+                    xNewUndershoot = (x - u[1] - int(m.copysign(1, u[1]))) % len(p[y])
                 else:
                     xNewOvershoot = x
                     xNewUndershoot = x
 
-                if u[1] != 0:
-                    yNewOvershoot = (y + u[1] + int(m.copysign(1, u[1]))) % len(p)
-                    yNewUndershoot = (y + u[1] - int(m.copysign(1, u[1]))) % len(p)
+                if u[0] != 0:
+                    yNewOvershoot = (y - u[0] + int(m.copysign(1, u[0]))) % len(p)
+                    yNewUndershoot = (y - u[0] - int(m.copysign(1, u[0]))) % len(p)
                 else:
                     yNewOvershoot = y
                     yNewUndershoot = y
@@ -117,7 +117,16 @@ def print_loc(world, sense, move, p):
         print("sensed: "+sense)
     if move is not None:
         print("Move:")
-        print("moved: {}".format(move))
+        move_word = ""
+        if move == [0, 1]:
+            move_word = "right"
+        elif move == [0, -1]:
+            move_word = "left"
+        elif move == [1, 0]:
+            move_word = "down"
+        elif move == [-1, 0]:
+            move_word = "up"
+        print("moved: {} ({})".format(move_word, move))
 
     if DIMENSIONS == 1:
         world_row = ["world:"]
@@ -159,7 +168,7 @@ if __name__ == "__main__":
     if DIMENSIONS == 1:
         motions = [1, 1]
     elif DIMENSIONS == 2:
-        motions = [[1, 0], [0, -1], [0, -1], [0, 1], [0, 1], [0, 1], [1, 0], [1, 0], [0, -1], [1, 0], [1, 0]]
+        motions = [[0, 1], [1, 0], [1, 0], [-1, 0], [-1, 0], [-1, 0], [0, 1], [0, 1], [1, 0], [0, 1], [0, 1]]
 
     print_loc(world, None, None, np.around(p, 3))
     print("---------------------")
